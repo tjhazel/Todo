@@ -2,7 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTodoItems, createTodoItem, updateTodoItem, deleteTodoItem } from "../../api/todoFetcher";
 import type { TodoItem } from "../../api/todoItem";
 import Spinner from "../spinner/spinner";
-import TodoItemField from "./TodoItemField";
+//import TodoItemField from "./TodoItemField";
+import { Plus, Check, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatDateLong } from '../../lib/format';
+import { dateComparer } from '../../lib/comparer';
+
+import './todo.css';
+import TodoItemField from './TodoItemField';
+import TodoPager from './TodoPager';
 
 interface ITodoListProps {
    placeholder?: boolean;
@@ -13,17 +20,24 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
 
    console.log('props', props);
 
-   const { data: todos, error, isLoading } = useTodoItems();
+   const { data: todos, error: apiError, isLoading } = useTodoItems();
 
    const [isSaving, setIsSaving] = useState(false);
-   const [fieldError, setFieldError] = useState('');
+   const [error, setError] = useState('');
 
    const [newTodoTitle, setNewTodoTitle] = useState('');
    const [currentPage, setCurrentPage] = useState(1);
-   const [itemsPerPage, setItemsPerPage] = useState(10);
+   const [itemsPerPage, setItemsPerPage] = useState(5);
    const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+   const [sort, setSort] = useState<'asc' | 'desc'>('asc');
+
 
    const filteredTodos = useMemo(() => {
+
+      todos?.sort((a, b) => sort === 'asc' ?
+         dateComparer(a.createdOn, b.createdOn) :
+         dateComparer(b.createdOn, a.createdOn));
+
       switch (filter) {
          case 'active':
             return todos?.filter(todo => !todo.isComplete) ?? [];
@@ -32,7 +46,12 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
          default:
             return todos ?? [];
       }
-   }, [todos, filter]);
+   }, [todos, filter, sort]);
+
+   useEffect(() => {
+      setError(apiError);
+   }, [apiError]);
+
 
    // Calculate pagination
    const totalPages = Math.ceil(filteredTodos.length / itemsPerPage);
@@ -46,6 +65,16 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
    }, [filter]);
 
 
+
+   const goToPage = (page: number) => {
+      setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+   };
+
+   const reset = () => {
+      setNewTodoTitle('');
+      setError('');
+   };
+
    const handleAdd = async () => {
       setIsSaving(true);
 
@@ -55,27 +84,19 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
          .then(() => {
             reset();
          })
-         .catch(err => setFieldError(`Failed to add new Item: ${err}`))
+         .catch(err => setError(`Failed to add new Item: ${err}`))
          .finally(() => {
             setIsSaving(false);
          });
    };
 
-   const goToPage = (page: number) => {
-      setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-   };
-
-   const reset = () => {
-      setNewTodoTitle('');
-      setFieldError('');
-   };
 
    const handleDelete = async (id: number) => {
       await deleteTodoItem(id)
          .then(() => {
             reset();
          })
-         .catch(err => setFieldError(`Failed to delete Item: ${err}`))
+         .catch(err => setError(`Failed to delete Item: ${err}`))
          .finally(() => {
             setIsSaving(false);
          });
@@ -90,45 +111,99 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
          .then(() => {
             reset();
          })
-         .catch(err => setFieldError(`Failed to update Item: ${err}`))
+         .catch(err => setError(`Failed to update Item: ${err}`))
          .finally(() => {
             setIsSaving(false);
          });
    };
 
-   if (isLoading || isSaving)
+   if (isLoading)
       return <Spinner />
 
-   if (error)
-      return <p style={{ color: 'red' }}>Error: {error}</p>;
-
-   if (!filteredTodos)
-      return <p>No data available.</p>;
-
    return (
-      <div>
-         {fieldError &&
-            <p style={{ color: 'red' }}>{fieldError}</p>
-         }
+      <div className="todo-container">
 
-         <input
-            type="text"
-            value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
-            placeholder="Add a new todo item"
-         />
-         <button onClick={handleAdd}>Add Todo Item</button>
-
-
-         {dataPage?.map((item: TodoItem) => (
-            <div key={item.id}>
-               <TodoItemField
-                  todoItem={item}
-                  toggleCompleted={() => handleToggleCompleted(item)}
-                  deleteItem={handleDelete}
-               />
+         {/* Error display */}
+         {error && (
+            <div className="todo-error">
+               <div className="todo-error-text">
+                  <strong>Error:</strong> {error}
+               </div>
+               <button
+                  onClick={() => setError('')}
+                  className="todo-close-button"
+               >
+                  ×
+               </button>
             </div>
-         ))}
+         )}
+
+         {/* Add new todo */}
+         <div className="todo-add-section">
+            <input
+               type="text"
+               value={newTodoTitle}
+               onChange={(e) => setNewTodoTitle(e.target.value)}
+               onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
+               placeholder="Add a new todo..."
+               className="todo-input"
+            />
+            <button
+               onClick={handleAdd}
+               className="todo-add-button"
+            >
+               <Plus size={20} />
+               Add
+            </button>
+         </div>
+
+         {/* Filter & Sort buttons */}
+         <div className='flex-row'>
+            <div className="todo-filter-section">
+               {(['all', 'active', 'completed'] as const).map((filterType) => (
+                  <button
+                     key={filterType}
+                     onClick={() => setFilter(filterType)}
+                     className={`todo-filter-button ${filter === filterType ? 'active' : 'inactive'}`}
+                  >
+                     {filterType}
+                  </button>
+               ))}
+            </div>
+            <div className="todo-filter-section">
+            <button
+               onClick={() => setSort(sort === 'asc' ? 'desc' : 'asc')}
+               className={`todo-filter-button active`}
+            >
+               {sort}
+               </button>
+            </div>
+         </div>
+
+         {/* Todo list */}
+         <div className="todo-list">
+            {currentTodos.length === 0 ? (
+               <div className="todo-empty-state">
+                  {filteredTodos.length === 0 ? 'No todos found' : 'No todos on this page'}
+               </div>
+            ) : (
+                  currentTodos.map((todo) => (
+                     <TodoItemField todoItem={todo} toggleItem={handleToggleCompleted} deleteItem={handleDelete} />
+               ))
+            )}
+         </div>
+
+         {/* Pagination */}
+         {totalPages > 1 && (
+            <TodoPager
+               filteredItemCount={filteredTodos.length}
+               totalPages={totalPages}
+               startIndex={startIndex}
+               endIndex={endIndex}
+               currentPage={currentPage}
+               goToPage={goToPage}
+            />
+         )}
       </div>
    );
 }

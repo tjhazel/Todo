@@ -1,7 +1,6 @@
 import * as React from 'react';
 import './spinner.css'; 
 import reactLogo from '../../assets/react.svg';
-import '../../App.css';
 
 interface SpinnerProps {
    size?: string;
