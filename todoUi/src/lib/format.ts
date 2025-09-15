@@ -1,8 +1,14 @@
+import dayjs from 'dayjs';
 
-export const formatLocalDate = (date: Date) => {
-   return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-   });
-};
+type GenericDate = Date
+   | string
+   | number
+   | dayjs.Dayjs;
+
+export const formatDateLong = (date: GenericDate): string => {
+   if (!date)
+      return "";
+
+   return dayjs(date).format("MM/DD/YYYY HH:mm A");
+}
+
