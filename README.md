@@ -66,7 +66,7 @@ dotnet workload install aspire
 git clone <repository-url>
 cd <project-directory>
 ```
-### 3. Run the Aspire project
+### 2. Run the Aspire project
 
 The easiest way to run the entire solution is through the Aspire AppHost:
 
@@ -85,6 +85,11 @@ This will start:
 - **Frontend**: `http://localhost:3000`
 - **API**: `http://localhost:5259`
 - **Aspire Dashboard**: `http://localhost:17136` (check console output for exact URL)
+
+### 5. Alternatively - open the solution in Visual Studio
+
+- **Todo.AppHost**: set `Todo.AppHost` project as the startup project
+- **f5**: Run solution - *should* launch aspire dashboard
 
 ## Development
 
@@ -122,14 +127,19 @@ dotnet test          # Run tests (if any)
 #### Backend
 - **.NET Core 8.0**: Web API framework
 - **Entity Framework Core**: ORM (in memory)
+   -  *note* OnModelCreating loads seed data - not a great live patten, but great for a quick demo like this
 - **Swagger/OpenAPI**: API documentation
 
 #### Orchestration
 - **.NET Aspire**: Local orchestration and cloud deployment
+   - *AddNpmApp* was the path to a clean aspire dashboard
+   - *AddViteApp* could not get past vite assigning a new ui port, which blows up CORS
 
 ## SWR Data Fetching
 
-The frontend uses SWR for efficient data fetching. Example usage:
+The frontend uses SWR for efficient data fetching. The fetcher in use is a very simple abstraction. In a live situation would likely leverage a context with the token provider to more easily add bearer tokens and handle common fetch tasks.
+
+Example usage:
 
 ```javascript
 import useSWR from 'swr'
@@ -163,7 +173,7 @@ DELETE /api/todoitem/{id}         # Delete todoitem
 
 Create appropriate configuration files:
 
-#### Frontend (.env)
+#### todoUI (.env)
 ```
 VITE_API_BASE_URL=http://localhost:3000
 ```
