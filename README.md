@@ -1,6 +1,6 @@
-# Project Name
+# Todo - my twist
 
-A modern full-stack web application built with React, .NET Core, and orchestrated using .NET Aspire.
+A modern full-stack todo web application built with React(Vite), .NET Core(net8.0), and orchestrated using .NET Aspire.
 
 ## Architecture Overview
 
