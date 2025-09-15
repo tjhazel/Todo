@@ -2,11 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTodoItems, createTodoItem, updateTodoItem, deleteTodoItem } from "../../api/todoFetcher";
 import type { TodoItem } from "../../api/todoItem";
 import Spinner from "../spinner/spinner";
-//import TodoItemField from "./TodoItemField";
-import { Plus, Check, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { formatDateLong } from '../../lib/format';
+import { Plus } from 'lucide-react';
 import { dateComparer } from '../../lib/comparer';
-
 import './todo.css';
 import TodoItemField from './TodoItemField';
 import TodoPager from './TodoPager';
@@ -27,10 +24,9 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
 
    const [newTodoTitle, setNewTodoTitle] = useState('');
    const [currentPage, setCurrentPage] = useState(1);
-   const [itemsPerPage, setItemsPerPage] = useState(5);
+   const [itemsPerPage, ] = useState(5);
    const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
    const [sort, setSort] = useState<'asc' | 'desc'>('asc');
-
 
    const filteredTodos = useMemo(() => {
 
@@ -52,7 +48,6 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
       setError(apiError);
    }, [apiError]);
 
-
    // Calculate pagination
    const totalPages = Math.ceil(filteredTodos.length / itemsPerPage);
    const startIndex = (currentPage - 1) * itemsPerPage;
@@ -63,7 +58,6 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
    useEffect(() => {
       setCurrentPage(1);
    }, [filter]);
-
 
 
    const goToPage = (page: number) => {
@@ -90,8 +84,9 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
          });
    };
 
-
    const handleDelete = async (id: number) => {
+      setIsSaving(true);
+
       await deleteTodoItem(id)
          .then(() => {
             reset();
@@ -103,6 +98,7 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
    };
 
    const handleToggleCompleted = async (item: TodoItem) => {
+      setIsSaving(true);
       const nextIsComplete = !item.isComplete;
       item.isComplete = nextIsComplete;
       item.completedOn = nextIsComplete ? new Date() : undefined;
@@ -151,6 +147,7 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
             <button
                onClick={handleAdd}
                className="todo-add-button"
+               disabled={isSaving}
             >
                <Plus size={20} />
                Add
@@ -165,6 +162,7 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
                      key={filterType}
                      onClick={() => setFilter(filterType)}
                      className={`todo-filter-button ${filter === filterType ? 'active' : 'inactive'}`}
+                     disabled={isSaving}
                   >
                      {filterType}
                   </button>
@@ -173,7 +171,8 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
             <div className="todo-filter-section">
             <button
                onClick={() => setSort(sort === 'asc' ? 'desc' : 'asc')}
-               className={`todo-filter-button active`}
+                  className={`todo-filter-button active`}
+                  disabled={isSaving}
             >
                {sort}
                </button>
@@ -202,6 +201,7 @@ const TodoList: React.FC<ITodoListProps> = (props: ITodoListProps) => {
                endIndex={endIndex}
                currentPage={currentPage}
                goToPage={goToPage}
+               disable={isSaving}
             />
          )}
       </div>
