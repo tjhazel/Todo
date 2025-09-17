@@ -16,8 +16,4 @@
     <ProjectReference Include="..\TodoCore.Domain\TodoCore.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Utilities\" />
-  </ItemGroup>
-
 </Project>

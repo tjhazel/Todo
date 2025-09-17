@@ -6,21 +6,35 @@ using TodoCore.Domain.Services;
 
 namespace Todo.Api;
 
+/// <summary>
+/// keep all the startup builder bits in a clean format
+/// </summary>
 public static class AppBuilder
 {
    public const string AllowCors = "AllowCors";
 
    public static WebApplication BuildApp(WebApplicationBuilder builder, bool isDebug)
    {
+      AddAuthentication(builder);
+      AddAuthorization(builder);
       AddSwagger(builder);
       AddCors(builder);
       AddLogging(builder);
-
       RegisterHttpClients(builder);
       RegisterDependencies(builder);
       RegisterControllers(builder);
 
       return builder.Build();
+   }
+
+   static void AddAuthentication(WebApplicationBuilder builder)
+   {
+      //todo: validate jwt token here
+   }
+
+   static void AddAuthorization(WebApplicationBuilder builder)
+   {
+      //todo: add custom auth here
    }
 
    static void AddSwagger(WebApplicationBuilder builder)
@@ -65,6 +79,7 @@ public static class AppBuilder
    static void RegisterHttpClients(WebApplicationBuilder builder)
    {
       builder.Services.AddHttpClient();
+      //todo: add any named clients here
    }
 
 
@@ -79,6 +94,8 @@ public static class AppBuilder
       
       //project dependencies
       builder.Services.AddTransient<ITodoService, TodoService>();
+
+      //todo: add support for ServiceImplementation if looking to simplify adding dependencies
 
       builder.Services.AddDbContextFactory<TodoContext>(options =>
        {

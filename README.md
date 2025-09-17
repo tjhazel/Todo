@@ -7,23 +7,23 @@ A modern full-stack todo web application built with React(Vite), .NET Core(net8.
 This solution consists of multiple projects orchestrated together using .NET Aspire:
 
 - **Frontend**: React + Vite with SWR for efficient data fetching
-- **Backend API**: .NET Core Web API (.NET 8.0)
-- **Domain Layer**: Shared domain models and business logic (.NET 8.0)
-- **Orchestration**: .NET Aspire for local development and deployment
+- **Backend API**: .NET Core Web API (.NET 8.0) designed as a layer on top of the domain features
+- **Domain Layer**: Shared domain models and business logic (.NET 8.0) to allow for easily adding new entry points and creating unit tests
+- **Orchestration**: .NET Aspire for local development and deployment 
 
 ## Project Structure
 
 ```
 Solution/
 ├── Todo/
-│   ├── todoUi/                    # React + Vite application
+│   ├── todoUi/                      # React + Vite application
 │   │   ├── dist/
 │   │   ├── src/
 │   │   ├── public/
 │   │   ├── package.json
 │   │   └── index.html
 │   │   └── vite.config.js
-│   ├── Todo.Api/                     # .NET Core Web API
+│   ├── Todo.Api/                    # .NET Core Web API
 │   │   ├── Controllers/
 │   │   ├── Utilties/
 │   │   ├── AppBuilder.cs
@@ -86,10 +86,15 @@ This will start:
 - **API**: `http://localhost:5259`
 - **Aspire Dashboard**: `http://localhost:17136` (check console output for exact URL)
 
-### 5. Alternatively - open the solution in Visual Studio
+### 5. For a better development experience - open the solution in Visual Studio
 
 - **Todo.AppHost**: set `Todo.AppHost` project as the startup project
-- **f5**: Run solution - *should* launch aspire dashboard
+- **f5**: Run solution - *should* launch aspire dashboard with api and ui (with hot reloading)
+
+### 6. Alternatively - open the solution in Visual Studio and use CSCode for the UI
+
+- **Visual Studio**: set `Todo.Api` project as the startup project and run to launch the swagger page of the UI
+- **VSCode**: open the todoUI folder in vscode and run `npm run dev` 
 
 ## Development
 
@@ -119,21 +124,28 @@ dotnet test          # Run tests (if any)
 ### Key Technologies
 
 #### Frontend
-- **React**: UI framework
+- **React**: kept it minimal with and somewhat unopinionated
 - **Vite**: Build tool and development server
 - **SWR**: Data fetching library with caching, revalidation, and error handling
-- **TypeScript**: Type safety (if configured)
+   - Created super lightweight fetch wrapper for this sample
+- **TypeScript**: Type safety for developer productivity and overall piece of mind
+- **Backlog**: Next steps
+   - Would typically pull in a framework like a SemanticUI, AntDesign, or the flavor of the day that achievies current design descions
+   - Forms: Formik or React Hook Forms with yup for validation 
+   - Auth: used MSAL, Auth0, and custom token providers in the past, but should be able to work in most providers.
+   - HttpClient: Would likely create a context wrapper to support easily pulling access tokens
 
 #### Backend
 - **.NET Core 8.0**: Web API framework
-- **Entity Framework Core**: ORM (in memory)
-   -  *note* OnModelCreating loads seed data - not a great live patten, but great for a quick demo like this
-- **Swagger/OpenAPI**: API documentation
+- **Entity Framework Core**: ORM
+   - *InMemory* provider loaded from WebApi to keep domain tier from extraneous dependencies
+   - *OnModelCreating** loads seed data - not a great live patten, but great for preloading demo data
+- **Swagger/OpenAPI**: API documentation & to execute api calls
 
 #### Orchestration
 - **.NET Aspire**: Local orchestration and cloud deployment
    - *AddNpmApp* was the path to a clean aspire dashboard
-   - *AddViteApp* could not get past vite assigning a new ui port, which blows up CORS
+   - *AddViteApp* could not get past Vite assigning a new ui port, which blows up CORS
 
 ## SWR Data Fetching
 
@@ -157,13 +169,13 @@ function Profile() {
 
 ## API Endpoints
 
-Document your key API endpoints here:
+API endpoints:
 
 ```
-GET    /api/todoitem              # Get all todo item
-GET    /api/todoitem/{id}         # Get todoitem by ID
 POST   /api/todoitem              # Create new todoitem
-PUT    /api/todoitem/{id}         # Update todoitem
+GET    /api/todoitem              # Get all todo item
+GET    /api/todoitem/{id}         # Get todoitem by ID - unused in this sample
+PUT    /api/todoitem              # Update todoitem
 DELETE /api/todoitem/{id}         # Delete todoitem
 ```
 

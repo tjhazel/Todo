@@ -3,7 +3,6 @@ using Todo.Api;
 using TodoCore.Domain.DataAccess;
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();

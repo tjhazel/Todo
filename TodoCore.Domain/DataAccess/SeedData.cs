@@ -2,6 +2,9 @@
 
 namespace TodoCore.Domain.DataAccess;
 
+/// <summary>
+/// class used to create demo data.  
+/// </summary>
 public static class SeedData
 {
    public static TodoItem[] GetSeedTodoList()
