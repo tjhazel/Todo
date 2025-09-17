@@ -91,10 +91,10 @@ This will start:
 - **Todo.AppHost**: set `Todo.AppHost` project as the startup project
 - **f5**: Run solution - *should* launch aspire dashboard with api and ui (with hot reloading)
 
-### 6. Alternatively - open the solution in Visual Studio and use CSCode for the UI
+### 6. Alternatively - open the solution in Visual Studio and use VSCode for the UI
 
 - **Visual Studio**: set `Todo.Api` project as the startup project and run to launch the swagger page of the UI
-- **VSCode**: open the todoUI folder in vscode and run `npm run dev` 
+- **VSCode**: open the todoUI folder in VSCode and run `npm run dev` 
 
 ## Development
 
