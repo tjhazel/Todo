@@ -103,7 +103,7 @@ This will start:
 The frontend uses Vite for fast development and SWR for data fetching:
 
 ```bash
-cd src/Frontend
+cd Todo/todoUi
 npm run dev          # Start development server
 npm run build        # Build for production
 npm run preview      # Preview production build
@@ -115,7 +115,7 @@ npm run lint         # Run ESLint
 The Web API is built with .NET Core 8.0:
 
 ```bash
-cd Todo/todoUi
+cd Todo/Todo.Api
 dotnet run           # Run the API
 dotnet build         # Build the project
 dotnet test          # Run tests (if any)
